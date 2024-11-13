@@ -1,0 +1,187 @@
+#include <iostream>
+using namespace std;
+
+struct Vehiculo {
+    string placa;
+    int movimientos;
+    bool esMoto;
+    Vehiculo* siguiente;
+};
+
+class Parqueadero {
+private:
+    Vehiculo* topMotos;
+    Vehiculo* topCarros;
+    int dineroTotal;
+    
+    // Función auxiliar para calcular el costo
+    int calcularCosto(bool esMoto, int movimientos) {
+        int costoBase = esMoto ? 1000 : 2000;
+        return costoBase + (movimientos * 100);
+    }
+
+public:
+    Parqueadero() {
+        topMotos = nullptr;
+        topCarros = nullptr;
+        dineroTotal = 0;
+    }
+
+    void ingresarVehiculo(string placa, bool esMoto) {
+        Vehiculo* nuevo = new Vehiculo();
+        nuevo->placa = placa;
+        nuevo->movimientos = 0;
+        nuevo->esMoto = esMoto;
+
+        if (esMoto) {
+            nuevo->siguiente = topMotos;
+            topMotos = nuevo;
+        } else {
+            nuevo->siguiente = topCarros;
+            topCarros = nuevo;
+        }
+    }
+
+    bool sacarVehiculo(string placa, bool esMoto) {
+        Vehiculo** top = esMoto ? &topMotos : &topCarros;
+        Vehiculo* temp = *top;
+        Vehiculo* anterior = nullptr;
+        
+        while (temp != nullptr) {
+            if (temp->placa == placa) {
+                int movimientosAdicionales = 0;
+                // Contar movimientos necesarios para sacar el vehículo
+                Vehiculo* conteo = *top;
+                while (conteo != temp) {
+                    conteo->movimientos++;
+                    movimientosAdicionales++;
+                    conteo = conteo->siguiente;
+                }
+                
+                // Calcular costo y actualizar dinero total
+                dineroTotal += calcularCosto(esMoto, temp->movimientos + movimientosAdicionales);
+                
+                // Remover el vehículo
+                if (anterior == nullptr) {
+                    *top = temp->siguiente;
+                } else {
+                    anterior->siguiente = temp->siguiente;
+                }
+                delete temp;
+                return true;
+            }
+            anterior = temp;
+            temp = temp->siguiente;
+        }
+        return false;
+    }
+
+    void mostrarEstado() {
+        cout << "\nEstado del Parqueadero:" << endl;
+        cout << "Dinero Total Generado: $" << dineroTotal << endl;
+        
+        cout << "\nMotos estacionadas:" << endl;
+        Vehiculo* temp = topMotos;
+        while (temp != nullptr) {
+            cout << "Placa: " << temp->placa << " - Movimientos: " << temp->movimientos << endl;
+            temp = temp->siguiente;
+        }
+        
+        cout << "\nCarros estacionados:" << endl;
+        temp = topCarros;
+        while (temp != nullptr) {
+            cout << "Placa: " << temp->placa << " - Movimientos: " << temp->movimientos << endl;
+            temp = temp->siguiente;
+        }
+    }
+};
+
+// Estructura para el árbol binario (para los recorridos)
+struct NodoArbol {
+    string dato;
+    NodoArbol* izquierda;
+    NodoArbol* derecha;
+    
+    NodoArbol(string valor) : dato(valor), izquierda(nullptr), derecha(nullptr) {}
+};
+
+class ArbolRecorridos {
+public:
+    NodoArbol* raiz;
+    
+    ArbolRecorridos() : raiz(nullptr) {}
+    
+    void preorden(NodoArbol* nodo) {
+        if (nodo != nullptr) {
+            cout << nodo->dato << " ";
+            preorden(nodo->izquierda);
+            preorden(nodo->derecha);
+        }
+    }
+    
+    void inorden(NodoArbol* nodo) {
+        if (nodo != nullptr) {
+            inorden(nodo->izquierda);
+            cout << nodo->dato << " ";
+            inorden(nodo->derecha);
+        }
+    }
+    
+    void postorden(NodoArbol* nodo) {
+        if (nodo != nullptr) {
+            postorden(nodo->izquierda);
+            postorden(nodo->derecha);
+            cout << nodo->dato << " ";
+        }
+    }
+};
+
+int main() {
+    Parqueadero parqueadero;
+    ArbolRecorridos arbol;
+    int opcion;
+    string placa;
+
+    do {
+        cout << "\n1. Ingresar Moto" << endl;
+        cout << "2. Ingresar Carro" << endl;
+        cout << "3. Sacar Moto" << endl;
+        cout << "4. Sacar Carro" << endl;
+        cout << "5. Mostrar Estado" << endl;
+        cout << "6. Salir" << endl;
+        cout << "Seleccione una opción: ";
+        cin >> opcion;
+
+        switch(opcion) {
+            case 1:
+                cout << "Ingrese la placa de la moto: ";
+                cin >> placa;
+                parqueadero.ingresarVehiculo(placa, true);
+                break;
+            case 2:
+                cout << "Ingrese la placa del carro: ";
+                cin >> placa;
+                parqueadero.ingresarVehiculo(placa, false);
+                break;
+            case 3:
+                cout << "Ingrese la placa de la moto a sacar: ";
+                cin >> placa;
+                if (!parqueadero.sacarVehiculo(placa, true)) {
+                    cout << "Moto no encontrada" << endl;
+                }
+                break;
+            case 4:
+                cout << "Ingrese la placa del carro a sacar: ";
+                cin >> placa;
+                if (!parqueadero.sacarVehiculo(placa, false)) {
+                    cout << "Carro no encontrado" << endl;
+                }
+                break;
+            case 5:
+                parqueadero.mostrarEstado();
+                break;
+        }
+    } while(opcion != 6);
+
+    return 0;
+}
