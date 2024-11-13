@@ -1,0 +1,183 @@
+#include <iostream>
+using namespace std;
+
+struct nodo {
+    int edad;
+    int documento;
+    nodo *izq;
+    nodo *der;
+};
+
+struct nodo *raiz, *aux, *aux2;
+
+int posicionar() {
+    if (aux->edad > aux2->edad) {
+        if (aux2->izq == NULL) {
+            aux2->izq = aux;
+            return 0;
+        } else {
+            aux2 = aux2->izq;
+            posicionar();
+        }
+    } else {
+        if (aux2->der == NULL) {
+            aux2->der = aux;
+            return 0;
+        } else {
+            aux2 = aux2->der;
+            posicionar();
+        }
+    }
+    return 0;
+}
+
+int registrador() {
+    aux = (struct nodo *)malloc(sizeof(struct nodo));
+    cout << "Digite la edad del paciente: ";
+    cin >> aux->edad;
+    cout << "Digite el documento del paciente: ";
+    cin >> aux->documento;
+
+    aux->izq = aux->der = NULL;
+
+    if (!raiz) {
+        raiz = aux;
+        aux = NULL;
+        free(aux);
+    } else {
+        aux2 = raiz;
+        posicionar();
+        aux = NULL;
+    }
+    return 0;
+}
+
+int recorrer(nodo *a) {
+    if (a->izq != NULL) {
+        recorrer(a->izq);
+    }
+
+    cout << "Edad: " << a->edad << " - Documento: " << a->documento << endl;
+
+    if (a->der != NULL) {
+        recorrer(a->der);
+    }
+    return 0;
+}
+
+int mostrar() {
+    if (raiz) {
+        cout << "\nlista de pacientes (ordenada por edad de mayor a menor):\n";
+        recorrer(raiz);
+    } else {
+        cout << "No hay pacientes registrados.\n";
+    }
+    return 0;
+}
+
+int ubicar(nodo *a, int doc_buscado) {
+    if (a->documento == doc_buscado) {
+        aux2 = a;
+        return 0;
+    }
+
+    if (a->izq != NULL) {
+        ubicar(a->izq, doc_buscado);
+    }
+
+    if (a->der != NULL) {
+        ubicar(a->der, doc_buscado);
+    }
+
+    return 0;
+}
+
+int buscarPorDocumento() {
+    aux2 = NULL;
+    int doc_buscado;
+    cout << "Digite el documento del paciente a buscar: ";
+    cin >> doc_buscado;
+
+    if (raiz != NULL) {
+        aux = raiz;
+        ubicar(aux, doc_buscado);
+
+        if (aux2) {
+            cout << "Paciente encontrado:\n";
+            cout << "Documento: " << aux2->documento << "\n";
+            cout << "Edad: " << aux2->edad << "\n";
+        } else {
+            cout << "Paciente no encontrado.\n";
+        }
+    } else {
+        cout << "No hay pacientes registrados.\n";
+    }
+    return 0;
+}
+
+nodo* encontrarMinimo(nodo* a) {
+    while (a->izq != NULL) a = a->izq;
+    return a;
+}
+
+nodo* eliminar(nodo* raiz, int doc_buscado) {
+    if (raiz == NULL) return raiz;
+
+    if (doc_buscado < raiz->documento) {
+        raiz->izq = eliminar(raiz->izq, doc_buscado);
+    } else if (doc_buscado > raiz->documento) {
+        raiz->der = eliminar(raiz->der, doc_buscado);
+    } else {
+        if (raiz->izq == NULL) {
+            nodo* temp = raiz->der;
+            free(raiz);
+            return temp;
+        } else if (raiz->der == NULL) {
+            nodo* temp = raiz->izq;
+            free(raiz);
+            return temp;
+        }
+
+        nodo* temp = encontrarMinimo(raiz->der);
+        raiz->documento = temp->documento;
+        raiz->edad = temp->edad;
+        raiz->der = eliminar(raiz->der, temp->documento);
+    }
+    return raiz;
+}
+
+int eliminarPorDocumento() {
+    int doc_buscado;
+    cout << "Digite el documento del paciente a eliminar: ";
+    cin >> doc_buscado;
+
+    raiz = eliminar(raiz, doc_buscado);
+    return 0;
+}
+
+int main() {
+    raiz = NULL;
+    int opcion;
+
+    do {
+        cout << "\nSistema de Gestion de Pacientes\n";
+        cout << "1. Registrar nuevo paciente\n";
+        cout << "2. Mostrar lista de pacientes\n";
+        cout << "3. Buscar paciente por documento\n";
+        cout << "4. Eliminar paciente por documento\n";
+        cout << "5. Salir\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1: registrador(); break;
+            case 2: mostrar(); break;
+            case 3: buscarPorDocumento(); break;
+            case 4: eliminarPorDocumento(); break;
+            case 5: cout << "Saliendo del sistema\n"; break;
+            default: cout << "Opcion invalida.\n";
+        }
+    } while (opcion != 5);
+
+    return 0;
+}
