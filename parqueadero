@@ -14,7 +14,6 @@ private:
     Vehiculo* topCarros;
     int dineroTotal;
     
-    // Función auxiliar para calcular el costo
     int calcularCosto(bool esMoto, int movimientos) {
         int costoBase = esMoto ? 1000 : 2000;
         return costoBase + (movimientos * 100);
@@ -50,7 +49,7 @@ public:
         while (temp != nullptr) {
             if (temp->placa == placa) {
                 int movimientosAdicionales = 0;
-                // Contar movimientos necesarios para sacar el vehículo
+               
                 Vehiculo* conteo = *top;
                 while (conteo != temp) {
                     conteo->movimientos++;
@@ -58,10 +57,9 @@ public:
                     conteo = conteo->siguiente;
                 }
                 
-                // Calcular costo y actualizar dinero total
+                
                 dineroTotal += calcularCosto(esMoto, temp->movimientos + movimientosAdicionales);
                 
-                // Remover el vehículo
                 if (anterior == nullptr) {
                     *top = temp->siguiente;
                 } else {
@@ -96,7 +94,7 @@ public:
     }
 };
 
-// Estructura para el árbol binario (para los recorridos)
+//*Estructura para el árbol binario para los recorridos
 struct NodoArbol {
     string dato;
     NodoArbol* izquierda;
@@ -149,7 +147,7 @@ int main() {
         cout << "4. Sacar Carro" << endl;
         cout << "5. Mostrar Estado" << endl;
         cout << "6. Salir" << endl;
-        cout << "Seleccione una opción: ";
+        cout << "Seleccione una opcion: ";
         cin >> opcion;
 
         switch(opcion) {
